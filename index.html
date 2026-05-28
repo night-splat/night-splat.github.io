@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NightSplat: Learning 3D Scene Reconstruction from Nighttime Driving Videos</title>
+
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌃</text></svg>">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #ffffff;
+      --bg-alt: #f4f6f9;
+      --text: #111827;
+      --muted: #4b5563;
+      --accent: #2563eb;
+      --border: #dde1e7;
+      --max-width: 1100px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Inter", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .container {
+      width: 90%;
+      max-width: var(--max-width);
+      margin: 0 auto;
+    }
+
+    .hero {
+      padding: 80px 0 60px;
+      text-align: center;
+      background: linear-gradient(180deg, #eef2ff 0%, #ffffff 100%);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .title {
+      font-size: 3rem;
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      margin-bottom: 20px;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 1.15rem;
+      max-width: 900px;
+      margin: 0 auto 28px;
+    }
+
+    .authors {
+      font-size: 1rem;
+      margin-bottom: 14px;
+    }
+
+    .affiliations {
+      color: var(--muted);
+      font-size: 0.95rem;
+      margin-bottom: 32px;
+    }
+
+    .badge {
+      display: inline-block;
+      background: rgba(37,99,235,0.08);
+      border: 1px solid rgba(37,99,235,0.25);
+      color: var(--accent);
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      margin-bottom: 28px;
+    }
+
+    .button-group {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+
+    .button {
+      padding: 12px 22px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--bg-alt);
+      color: var(--text);
+      font-weight: 600;
+      transition: 0.2s ease;
+    }
+
+    .button:hover {
+      transform: translateY(-2px);
+      text-decoration: none;
+      border-color: var(--accent);
+    }
+
+    section {
+      padding: 70px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    h2 {
+      font-size: 2rem;
+      margin-bottom: 20px;
+      letter-spacing: -0.03em;
+    }
+
+    p {
+      color: var(--muted);
+      font-size: 1.02rem;
+    }
+
+    .teaser {
+      width: 100%;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      margin-top: 30px;
+      background: var(--bg-alt);
+    }
+
+    .teaser img {
+      width: 100%;
+      display: block;
+    }
+
+    .teaser-white {
+      background: white;
+    }
+
+    .teaser-padded .img-pad {
+      background: white;
+      padding: 28px;
+    }
+
+    .caption {
+      font-size: 0.92rem;
+      color: var(--muted);
+      padding: 16px 20px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 28px;
+      margin-top: 30px;
+    }
+
+    .card {
+      background: var(--bg-alt);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .card img {
+      width: 100%;
+      display: block;
+    }
+
+    .card-content {
+      padding: 18px;
+    }
+
+    .card-title {
+      font-weight: 600;
+      margin-bottom: 8px;
+      font-size: 1.05rem;
+    }
+
+    .card-text {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .video-wrapper {
+      margin-top: 30px;
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    iframe {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border: none;
+    }
+
+    pre {
+      background: var(--bg-alt);
+      padding: 20px;
+      border-radius: 6px;
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      color: #1e293b;
+      font-size: 0.92rem;
+    }
+
+    footer {
+      padding: 50px 0;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    @media (max-width: 768px) {
+      .title {
+        font-size: 2.2rem;
+      }
+
+      h2 {
+        font-size: 1.6rem;
+      }
+
+      .subtitle {
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header class="hero">
+    <div class="container">
+
+      <div class="badge">
+        IEEE Robotics and Automation Letters (RA-L) 2026
+      </div>
+
+      <h1 class="title">
+        Learning 3D Scene Reconstruction from Nighttime Driving Videos
+      </h1>
+
+      <div class="authors">
+        Andrea Ramazzina,
+        Stefano Gasperini,
+        Mario Bijelic,
+        Felix Heide,
+        Federico Tombari
+      </div>
+
+      <div class="affiliations">
+        Technical University of Munich · Mercedes-Benz · Princeton University · Torc Robotics 
+      </div>
+
+      <div class="button-group">
+        <a class="button" href="paper.pdf">📄 Paper</a>
+        <a class="button" href="#video">🎥 Video</a>
+        <a class="button" href="#results">📊 Results</a>
+        <a class="button" href="#bibtex">📚 BibTeX</a>
+      </div>
+
+    </div>
+  </header>
+
+  <section>
+    <div class="container">
+
+      <h2>Overview</h2>
+
+      <p>
+        Nighttime driving scenes remain extremely challenging for
+        neural rendering and 3D reconstruction methods due to low-light
+        conditions, sensor noise, motion blur, lens flare artifacts,
+        and highly dynamic lighting from vehicles and street lamps.
+      </p>
+
+      <p>
+        We present <strong>NightSplat</strong>, a Gaussian Splatting framework
+        specifically designed for high-fidelity nighttime scene reconstruction
+        and novel view synthesis from automotive driving sequences.
+      </p>
+
+      <div class="teaser teaser-padded">
+        <div class="img-pad">
+          <img src="images/teaser.png" alt="NightSplat pipeline overview">
+        </div>
+        <div class="caption">
+          <strong>Overview.</strong> We represent the scene as a set of 3D Gaussians rendered in raw sensor space,
+          modeling long-exposure blur, moving light sources, lens flares, and acquisition noise
+          to faithfully reconstruct nighttime driving scenes.
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section id="video">
+    <div class="container">
+
+      <h2>Video</h2>
+
+      <p>
+        Replace the YouTube link below with your project video or supplementary video.
+      </p>
+
+      <div class="video-wrapper">
+        <iframe
+          src="https://www.youtube.com/embed/YOUR_VIDEO_ID"
+          title="NightSplat Video"
+          allowfullscreen>
+        </iframe>
+      </div>
+
+    </div>
+  </section>
+
+  <section id="results">
+    <div class="container">
+
+      <h2>Qualitative Results</h2>
+
+      <p>
+        NightSplat reconstructs sharper nighttime scene details and
+        significantly improves the realism of nighttime driving scenes,
+        particularly around dynamic lighting and flare-heavy regions.
+      </p>
+
+      <div class="teaser">
+        <img src="images/qualitative_t.png" alt="NightSplat qualitative results">
+        <div class="caption">
+          Qualitative comparison on NuScenes. NightSplat (ours) reconstructs sharper scene details
+          with more realistic lighting compared to prior methods.
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section>
+    <div class="container">
+
+      <h2>Method</h2>
+
+      <p>
+        NightSplat extends Gaussian Splatting to nighttime driving conditions
+        through four key contributions:
+      </p>
+
+      <ul>
+        <li>Exposure-aware temporal rendering</li>
+        <li>Raw sensor-space reconstruction with noise modeling</li>
+        <li>Lens flare disentanglement</li>
+        <li>Dynamic moving-light modeling</li>
+      </ul>
+
+      <div class="teaser teaser-padded">
+        <div class="img-pad">
+          <img src="images/method.jpg" alt="NightSplat light modeling method">
+        </div>
+        <div class="caption">
+          <strong>Light modeling.</strong> Each dynamic light source is represented by an appearance embedding and relative position.
+          Light features are processed by a neural network alongside splatted scene features and surface normals
+          to predict illumination effects. A separate lightweight CNN estimates lens flare contributions from saturated scene areas.
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section id="bibtex">
+    <div class="container">
+
+      <h2>BibTeX</h2>
+
+<pre><code>@article{ramazzina2026nightsplat,
+  title={NightSplat: Learning 3D Scene Reconstruction from Nighttime Driving Videos},
+  author={Ramazzina, Andrea and Gasperini, Stefano and Bijelic, Mario and Heide, Felix and Tombari, Federico},
+  journal={IEEE Robotics and Automation Letters (RA-L)},
+  year={2026}
+}</code></pre>
+
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">
+      Website template inspired by modern academic project pages.
+    </div>
+  </footer>
+
+</body>
+</html>
+```
